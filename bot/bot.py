@@ -137,7 +137,6 @@ class Bot:
 
             print('Failed to add order!')
 
-        
 
     def call_required_function(self, tools_called):
 
@@ -149,6 +148,7 @@ class Bot:
             
             if (tool.function.name == 'insert_data_to_spreadsheet'):
                 values_param = json.loads(tool.function.arguments)['values']
+                
                 response = self.insert_data_to_spreadsheet(values_param)
 
                 tool_outputs.append({'tool_call_id' : tool.id, 'output' : response})
@@ -156,15 +156,7 @@ class Bot:
         return tool_outputs
 
     def send_message(self, message_content):
-        """
-        Sends a message to the bot and waits for the response.
 
-        Args:
-        message_content (str): The content of the message the user sends to the bot.
-
-        Returns:
-        str: The bot's response.
-        """
 
         message = self.client.beta.threads.messages.create(
             thread_id=self.thread.id,
