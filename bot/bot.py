@@ -105,40 +105,55 @@ class Bot:
 
         # values should be passed in the following format:
 
+        
         # values = [["23", "69", "Zain Ali Khokhar", "01-03-2024", "HP Envy Screen Protector, HP Envy Hinge", "Delivered", "Sponge-Bob", "03248433434", "Out of Lahore", "$6666.44", "9", "Added through API"]]
-        values[0][1] = self.number
+        try:
+        
+            values[0][1] = self.number
 
-        # SERVICE_ACCOUNT_FILE = r'C:\Users\Ahad Imran\Desktop\GenAI\Project\onlybusinessdummy-8706fb48751e.json'
-        SERVICE_ACCOUNT_FILE = r'C:\Users\Talha Abrar\Desktop\LUMS\SENIOR\Spring 2024\GEN AI\Project\OnlyBusiness\SpreadsheetAPI\onlybusinessdummy-8706fb48751e.json'
-        SPREADSHEET_ID = '1E_TLxnvSQgz2E7Y-5kFLJZtf8OogxPklmCQ819ip-vA'
-        RANGE_NAME = 'Sheet1'
+            # SERVICE_ACCOUNT_FILE = r'C:\Users\Ahad Imran\Desktop\GenAI\Project\onlybusinessdummy-8706fb48751e.json'
+            SERVICE_ACCOUNT_FILE = r'C:\Users\Talha Abrar\Desktop\LUMS\SENIOR\Spring 2024\GEN AI\Project\OnlyBusiness\SpreadsheetAPI\onlybusinessdummy-8706fb48751e.json'
+            SPREADSHEET_ID = '1E_TLxnvSQgz2E7Y-5kFLJZtf8OogxPklmCQ819ip-vA'
+            RANGE_NAME = 'Sheet1'
 
-        # Authenticate and build the service
-        credentials = Credentials.from_service_account_file(
-            SERVICE_ACCOUNT_FILE, scopes=['https://www.googleapis.com/auth/spreadsheets'])
-        service = build('sheets', 'v4', credentials=credentials)
+            # Authenticate and build the service
+            credentials = Credentials.from_service_account_file(
+                SERVICE_ACCOUNT_FILE, scopes=['https://www.googleapis.com/auth/spreadsheets'])
+            service = build('sheets', 'v4', credentials=credentials)
 
-        # Call the Sheets API to append the data
-        request = service.spreadsheets().values().append(
-            spreadsheetId=SPREADSHEET_ID,
-            range=RANGE_NAME,
-            valueInputOption='USER_ENTERED',
-            insertDataOption='INSERT_ROWS',
-            body={'values': values}
-        )
-        response = request.execute()
+            # Call the Sheets API to append the data
+            request = service.spreadsheets().values().append(
+                spreadsheetId=SPREADSHEET_ID,
+                range=RANGE_NAME,
+                valueInputOption='USER_ENTERED',
+                insertDataOption='INSERT_ROWS',
+                body={'values': values}
+            )
+            response = request.execute()
 
-        return "Successfully added row."
+            return 'Successfully added order!'
+        
+        except Exception as e:
+
+            print('Failed to add order!')
+
+        
 
     def call_required_function(self, tools_called):
 
-        for tool in tools_called:
+        tool_outputs = []
 
+        print(tools_called)
+
+        for tool in tools_called:
+            
             if (tool.function.name == 'insert_data_to_spreadsheet'):
                 values_param = json.loads(tool.function.arguments)['values']
                 response = self.insert_data_to_spreadsheet(values_param)
 
-        return response
+                tool_outputs.append({'tool_call_id' : tool.id, 'output' : response})
+            
+        return tool_outputs
 
     def send_message(self, message_content):
         """
@@ -164,9 +179,13 @@ class Bot:
 
         print(run.status)
         if (run.status == 'requires_action'):
-            check = self.call_required_function(
-                run.required_action.submit_tool_outputs.tool_calls)
-            print(check)
+            tool_outputs = self.call_required_function(run.required_action.submit_tool_outputs.tool_calls)
+
+            run = self.client.beta.threads.runs.submit_tool_outputs_and_poll(
+            thread_id=self.thread.id,
+            run_id=run.id,
+            tool_outputs=tool_outputs
+            )
 
         messages = self.client.beta.threads.messages.list(
             thread_id=self.thread.id)
