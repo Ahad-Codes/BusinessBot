@@ -4,16 +4,19 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 from decouple import config
 
 
-url = URL.create(
-    drivername="postgresql",
-    username=config("DB_USER"),
-    password=config("DB_PASSWORD"),
-    host="localhost",
-    database="mydb",
-    port=5432
-)
+# url = URL.create(
+#     drivername="postgresql",
+#     username=config("DB_USER"),
+#     password=config("DB_PASSWORD"),
+#     host="localhost",
+#     database="mydb",
+#     port=5432
+# )
 
-engine = create_engine(url)
+DATABASE_URL = config("DATABASE_URL")
+
+# engine = create_engine(url)
+engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine)
 Base = declarative_base()
 

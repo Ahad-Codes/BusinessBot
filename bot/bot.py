@@ -15,7 +15,8 @@ def insert_thread_id(whatsapp_num, thread_id):
     whatsapp_num = '\'' + whatsapp_num
     values = [[whatsapp_num, thread_id]]
 
-    SERVICE_ACCOUNT_FILE = r'C:\Users\Talha Abrar\Desktop\LUMS\SENIOR\Spring 2024\GEN AI\Project\OnlyBusiness\SpreadsheetAPI\onlybusinessdummy-8706fb48751e.json'
+    # SERVICE_ACCOUNT_FILE = r'C:\Users\Talha Abrar\Desktop\LUMS\SENIOR\Spring 2024\GEN AI\Project\OnlyBusiness\SpreadsheetAPI\onlybusinessdummy-8706fb48751e.json'
+    SERVICE_ACCOUNT_FILE = r'SpreadsheetAPI\onlybusinessdummy-8706fb48751e.json'
     SPREADSHEET_ID = '1E_TLxnvSQgz2E7Y-5kFLJZtf8OogxPklmCQ819ip-vA'
     RANGE_NAME = 'Sheet2'
 
@@ -62,7 +63,8 @@ class Bot:
 
     def get_spreadsheet_data(self):
 
-        SERVICE_ACCOUNT_FILE = r'C:\Users\Talha Abrar\Desktop\LUMS\SENIOR\Spring 2024\GEN AI\Project\OnlyBusiness\SpreadsheetAPI\onlybusinessdummy-8706fb48751e.json'
+        # SERVICE_ACCOUNT_FILE = r'C:\Users\Talha Abrar\Desktop\LUMS\SENIOR\Spring 2024\GEN AI\Project\OnlyBusiness\SpreadsheetAPI\onlybusinessdummy-8706fb48751e.json'
+        SERVICE_ACCOUNT_FILE = r'SpreadsheetAPI\onlybusinessdummy-8706fb48751e.json'
         SPREADSHEET_ID = '1E_TLxnvSQgz2E7Y-5kFLJZtf8OogxPklmCQ819ip-vA'
         RANGE_NAME = 'Sheet1'
 
@@ -100,7 +102,7 @@ class Bot:
 
         return run
 
-    def insert_data_to_spreadsheet(self, values=None):
+    def insert_data_to_spreadsheet(self, values=None, order_id=None):
         # schema : [order_id, customer_id, customer_name, order date, order items, status, rider, Rider contact number, Delivery address, Amount, Rating]
 
         # values should be passed in the following format:
@@ -110,9 +112,12 @@ class Bot:
         try:
         
             values[0][1] = self.number
+            order_id = order_id +1 
+            values[0][0] = order_id
 
             # SERVICE_ACCOUNT_FILE = r'C:\Users\Ahad Imran\Desktop\GenAI\Project\onlybusinessdummy-8706fb48751e.json'
-            SERVICE_ACCOUNT_FILE = r'C:\Users\Talha Abrar\Desktop\LUMS\SENIOR\Spring 2024\GEN AI\Project\OnlyBusiness\SpreadsheetAPI\onlybusinessdummy-8706fb48751e.json'
+            # SERVICE_ACCOUNT_FILE = r'C:\Users\Talha Abrar\Desktop\LUMS\SENIOR\Spring 2024\GEN AI\Project\OnlyBusiness\SpreadsheetAPI\onlybusinessdummy-8706fb48751e.json'
+            SERVICE_ACCOUNT_FILE = r'SpreadsheetAPI\onlybusinessdummy-8706fb48751e.json'
             SPREADSHEET_ID = '1E_TLxnvSQgz2E7Y-5kFLJZtf8OogxPklmCQ819ip-vA'
             RANGE_NAME = 'Sheet1'
 
@@ -131,31 +136,32 @@ class Bot:
             )
             response = request.execute()
 
-            return 'Successfully added order!'
+            return 'Successfully added order!', order_id
         
         except Exception as e:
 
             print('Failed to add order!')
 
 
-    def call_required_function(self, tools_called):
+    def call_required_function(self, tools_called, order_id):
 
         tool_outputs = []
 
         print(tools_called)
 
+        returned_id = order_id
         for tool in tools_called:
             
             if (tool.function.name == 'insert_data_to_spreadsheet'):
                 values_param = json.loads(tool.function.arguments)['values']
                 
-                response = self.insert_data_to_spreadsheet(values_param)
+                response, returned_id = self.insert_data_to_spreadsheet(values=values_param, order_id = order_id)
 
                 tool_outputs.append({'tool_call_id' : tool.id, 'output' : response})
             
-        return tool_outputs
+        return tool_outputs, returned_id
 
-    def send_message(self, message_content):
+    def send_message(self, message_content, order_id):
 
 
         message = self.client.beta.threads.messages.create(
@@ -169,9 +175,11 @@ class Bot:
         )
         run = self.wait_on_run(run, self.thread)
 
+        returned_id = order_id
+
         print(run.status)
         if (run.status == 'requires_action'):
-            tool_outputs = self.call_required_function(run.required_action.submit_tool_outputs.tool_calls)
+            tool_outputs, returned_id = self.call_required_function(run.required_action.submit_tool_outputs.tool_calls, order_id)
 
             run = self.client.beta.threads.runs.submit_tool_outputs_and_poll(
             thread_id=self.thread.id,
@@ -184,4 +192,4 @@ class Bot:
 
         response = messages.to_dict()["data"][0]["content"][0]['text']['value']
         self.history.append((message_content, response))
-        return response
+        return response, returned_id
