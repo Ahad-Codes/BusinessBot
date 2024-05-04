@@ -73,33 +73,21 @@ async def reply(request: Request, Body: str = Form(), db: Session = Depends(get_
 
     form_data = await request.form()
     whatsapp_number = form_data['From'].split("whatsapp:")[-1]
-
     thread_id = fetch_thread(whatsapp_number)
-    # admin_num == None
-    # if whatsapp_number == admin_num:
-    #     new_bot = Bot(thread_old=thread_id,
-    #                   whatsapp_number=whatsapp_number, user_type="admin")
-    # else:
+    
+    admin_num = "+923034162021" # Change to fetch later
+    if whatsapp_number == admin_num:
+        new_bot = Bot(thread_old=thread_id,
+                      whatsapp_number=whatsapp_number, user_type="admin")
+    else:
+        new_bot = Bot(thread_old=thread_id,
+                      whatsapp_number=whatsapp_number, user_type="user")
+
     # new_bot = Bot(thread_old=thread_id,
     #               whatsapp_number=whatsapp_number, user_type="user")
-
-    # Call the OpenAI API to generate text with ChatGPT
-    new_bot = Bot(thread_old=thread_id,
-                  whatsapp_number=whatsapp_number, user_type="user")
     messages = [{"role": "user", "content": Body}]
     messages.append(
         {"role": "system", "content": "You're an investor, a serial founder and you've sold many startups. You understand nothing but business."})
-    # response = openai.ChatCompletion.create(
-    #     model="gpt-3.5-turbo",
-    #     messages=messages,
-    #     max_tokens=200,
-    #     n=1,
-    #     stop=None,
-    #     temperature=0.5
-    # )
-
-    # # The generated text
-    # chatgpt_response = response.choices[0].message.content
 
     # The generated text
     global order_id
@@ -150,6 +138,7 @@ def fetch_thread(whatsapp_num):
 
     df = pd.DataFrame(data_rows, columns=column_names)
     query_results = df[df['Phone Number'] == whatsapp_num]
+
     print("CHECK\n", df['Phone Number'], "\n", whatsapp_num)
     if len(query_results) > 0:
         print("LAME", query_results['Thread ID'].values[0])
