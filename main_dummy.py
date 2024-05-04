@@ -14,7 +14,6 @@ from bot.bot_cleaned import Bot
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 import pandas as pd
-from Assistant_Functions.Retreive_Data import get_spreadsheet_data
 
 from openai import OpenAI
 
@@ -50,7 +49,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Sending message logic through Twilio Messaging API
-
 
 app = FastAPI()
 # Set up the OpenAI API client
@@ -102,7 +100,6 @@ def get_db():
 async def index():
     return {"msg": "working"}
 
-
 def transcript_audio(media_url: str) -> dict:
     try:
         ogg_file_path = f'audio_files/{uuid.uuid1()}.ogg'
@@ -135,11 +132,10 @@ def transcript_audio(media_url: str) -> dict:
         #     'transcript': transcript['text']
         # }
 
-
 @app.post("/message")
 async def reply(request: Request, db: Session = Depends(get_db)):
     # Extract the phone number from the incoming webhook request
-
+    print("----------------HERE-------------------")
     form_data = await request.form()
     print(form_data)
 
@@ -152,11 +148,10 @@ async def reply(request: Request, db: Session = Depends(get_db)):
 
     #---------------------
 
-    
     whatsapp_number = form_data['From'].split("whatsapp:")[-1]
     thread_id = fetch_thread(whatsapp_number)
-
-    admin_num = "+923034162021"  # Change to fetch later
+    
+    admin_num = "+923034162021" # Change to fetch later
     if whatsapp_number == admin_num:
         new_bot = Bot(thread_old=thread_id,
                       whatsapp_number=whatsapp_number, user_type="admin")
