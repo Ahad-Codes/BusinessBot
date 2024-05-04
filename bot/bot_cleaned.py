@@ -30,9 +30,12 @@ def get_service():
     return service
 
 class Bot:
-    def __init__(self, whatsapp_number, api_key=os.getenv('OPENAI_API_KEY'), assistant_id="asst_8FWoRndfw1BUlalAHW0Xib45", thread_old=None, run_old=None):
+    def __init__(self, whatsapp_number, api_key=os.getenv('OPENAI_API_KEY'), assistant_id="asst_8FWoRndfw1BUlalAHW0Xib45", thread_old=None, run_old=None, user_type = "user"):
         self.client = OpenAI(api_key=api_key)
-        self.assistant_id = assistant_id
+        if user_type == "user":
+            self.assistant_id = assistant_id
+        elif user_type == "admin":
+            self.assistant_id = "asst_H8Tz1E3QJaEqA4HgRDi8ocsw"
         self.number = str(whatsapp_number)
         self.service = get_service()
 
@@ -61,7 +64,6 @@ class Bot:
 
         RANGE_NAME = 'Sheet2'
 
-
         # Call the Sheets API to append the data
         request = self.service.spreadsheets().values().append(
             spreadsheetId=SPREADSHEET_ID,
@@ -88,10 +90,7 @@ class Bot:
         number = '+' + list(order['Customer ID'])[0]
         
         if len(order) == 0 :
-
            return 'Order not found!'
-
-       
         else:
             order_val = order.to_numpy().tolist()
             return f' [order_id : {order_val[0][0]}, customer_id : {order_val[0][1]}, customer_name : {order_val[0][2]}, order date : {order_val[0][3]}, order items : {order_val[0][4]}, status : {order_val[0][5]}, Delivery address : {order_val[0][6]}, Amount : {order_val[0][7]}]'

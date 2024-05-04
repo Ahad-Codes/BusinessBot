@@ -73,11 +73,17 @@ async def reply(request: Request, Body: str = Form(), db: Session = Depends(get_
     whatsapp_number = form_data['From'].split("whatsapp:")[-1]
 
     thread_id = fetch_thread(whatsapp_number)
+    admin_num == None
+    if whatsapp_number == admin_num:
+        new_bot = Bot(thread_old=thread_id,
+                  whatsapp_number=whatsapp_number, user_type = "admin")
+    else:
+         new_bot = Bot(thread_old=thread_id,
+                  whatsapp_number=whatsapp_number, user_type = "user")
+
 
     # Call the OpenAI API to generate text with ChatGPT
 
-    new_bot = Bot(thread_old=thread_id,
-                  whatsapp_number=whatsapp_number)
 
     messages = [{"role": "user", "content": Body}]
     messages.append(
