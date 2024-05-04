@@ -24,7 +24,6 @@ SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
 def show_json(obj):
     display(json.loads(obj.model_dump_json()))
 
-
 def get_service():
 
     # Authenticate and build the service
@@ -33,7 +32,6 @@ def get_service():
     service = build('sheets', 'v4', credentials=credentials)
 
     return service
-
 
 class Bot:
     def __init__(self, whatsapp_number, api_key=os.getenv('OPENAI_API_KEY'), assistant_id="asst_8FWoRndfw1BUlalAHW0Xib45", thread_old=None, run_old=None, user_type="user"):
@@ -139,7 +137,7 @@ class Bot:
             values[0][3] = formatted_date_time
             values[0][1] = self.number
             order_id = order_id + 1
-            values[0][0] = str(order_id)
+            values[0][0] = order_id
             RANGE_NAME = 'Sheet1'
 
             # Authenticate and build the service
@@ -170,8 +168,9 @@ class Bot:
 
         print(tools_called)
 
-        for tool in tools_called:
+        returned_id = order_id
 
+        for tool in tools_called:
             if (tool.function.name == 'insert_data_to_spreadsheet'):
                 values_param = json.loads(tool.function.arguments)['values']
                 response, returned_id = self.insert_data_to_spreadsheet(

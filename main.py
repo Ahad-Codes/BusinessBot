@@ -104,6 +104,7 @@ async def reply(request: Request, Body: str = Form(), db: Session = Depends(get_
     # The generated text
     global order_id
     print("IN MAIN ORDER ID:", order_id)
+    order_id = int(order_id)
     chatgpt_response, returned_id = new_bot.send_message(Body, order_id)
     order_id = returned_id
 
