@@ -14,7 +14,7 @@ from bot.bot_cleaned import Bot
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 import pandas as pd
-
+from Assistant_Functions.Retreive_Data import get_spreadsheet_data
 
 app = FastAPI()
 # Set up the OpenAI API client

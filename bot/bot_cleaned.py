@@ -8,6 +8,7 @@ import pandas as pd
 from dotenv import load_dotenv
 import os
 import time
+
 # import API_RowAppend file
 
 load_dotenv()
@@ -23,6 +24,8 @@ SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
 
 def show_json(obj):
     display(json.loads(obj.model_dump_json()))
+
+
 
 def get_service():
 
@@ -181,6 +184,11 @@ class Bot:
             if (tool.function.name == 'get_row_order'):
                 values_param = json.loads(tool.function.arguments)['order_id']
                 response = self.getRowOrder(values_param)
+                tool_outputs.append(
+                    {'tool_call_id': tool.id, 'output': response})
+                
+            if (tool.function.name == 'get_spreadsheet_data'):
+                response = self.getRowOrder()
                 tool_outputs.append(
                     {'tool_call_id': tool.id, 'output': response})
 
