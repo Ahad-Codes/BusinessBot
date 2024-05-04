@@ -26,7 +26,6 @@ def show_json(obj):
     display(json.loads(obj.model_dump_json()))
 
 
-
 def get_service():
 
     # Authenticate and build the service
@@ -35,6 +34,7 @@ def get_service():
     service = build('sheets', 'v4', credentials=credentials)
 
     return service
+
 
 class Bot:
     def __init__(self, whatsapp_number, api_key=os.getenv('OPENAI_API_KEY'), assistant_id="asst_8FWoRndfw1BUlalAHW0Xib45", thread_old=None, run_old=None, user_type="user"):
@@ -186,9 +186,11 @@ class Bot:
                 response = self.getRowOrder(values_param)
                 tool_outputs.append(
                     {'tool_call_id': tool.id, 'output': response})
-                
+
             if (tool.function.name == 'get_spreadsheet_data'):
-                response = self.getRowOrder()
+                response = self.get_spreadsheet_data()
+                response = response.to_json()
+                print("CHECK RESPONSE:", response)
                 tool_outputs.append(
                     {'tool_call_id': tool.id, 'output': response})
 
