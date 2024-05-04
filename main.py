@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 # Internal imports
 from models import Conversation, SessionLocal
 from utils import send_message, logger
-from bot.bot import Bot
+from bot.bot_cleaned import Bot
 
 # Sheets imports
 from google.oauth2.service_account import Credentials
@@ -19,6 +19,7 @@ import pandas as pd
 app = FastAPI()
 # Set up the OpenAI API client
 # openai.api_key = config("OPENAI_API_KEY")
+
 
 def fetch_order_id():
     # schema : [order_id, customer_id, customer_name, order date, order items, status, rider, Rider contact number, Delivery address, Amount, Rating]
@@ -49,6 +50,7 @@ def fetch_order_id():
         print("I am in else condition", last_order_id)
         return 0
 
+
 order_id = fetch_order_id()
 
 
@@ -73,18 +75,17 @@ async def reply(request: Request, Body: str = Form(), db: Session = Depends(get_
     whatsapp_number = form_data['From'].split("whatsapp:")[-1]
 
     thread_id = fetch_thread(whatsapp_number)
-    admin_num == None
-    if whatsapp_number == admin_num:
-        new_bot = Bot(thread_old=thread_id,
-                  whatsapp_number=whatsapp_number, user_type = "admin")
-    else:
-         new_bot = Bot(thread_old=thread_id,
-                  whatsapp_number=whatsapp_number, user_type = "user")
-
+    # admin_num == None
+    # if whatsapp_number == admin_num:
+    #     new_bot = Bot(thread_old=thread_id,
+    #                   whatsapp_number=whatsapp_number, user_type="admin")
+    # else:
+    # new_bot = Bot(thread_old=thread_id,
+    #               whatsapp_number=whatsapp_number, user_type="user")
 
     # Call the OpenAI API to generate text with ChatGPT
-
-
+    new_bot = Bot(thread_old=thread_id,
+                  whatsapp_number=whatsapp_number, user_type="user")
     messages = [{"role": "user", "content": Body}]
     messages.append(
         {"role": "system", "content": "You're an investor, a serial founder and you've sold many startups. You understand nothing but business."})
@@ -102,9 +103,10 @@ async def reply(request: Request, Body: str = Form(), db: Session = Depends(get_
 
     # The generated text
     global order_id
+    print("IN MAIN ORDER ID:", order_id)
     chatgpt_response, returned_id = new_bot.send_message(Body, order_id)
     order_id = returned_id
-    
+
     # Store the conversation in the database
     try:
         conversation = Conversation(
@@ -128,7 +130,7 @@ def fetch_thread(whatsapp_num):
     # schema : [order_id, customer_id, customer_name, order date, order items, status, rider, Rider contact number, Delivery address, Amount, Rating]
 
     # SERVICE_ACCOUNT_FILE = r'C:\Users\Talha Abrar\Desktop\LUMS\SENIOR\Spring 2024\GEN AI\Project\OnlyBusiness\SpreadsheetAPI\onlybusinessdummy-8706fb48751e.json'
-    SERVICE_ACCOUNT_FILE = r'SpreadsheetAPI\onlybusinessdummy-8706fb48751e.json' 
+    SERVICE_ACCOUNT_FILE = r'SpreadsheetAPI\onlybusinessdummy-8706fb48751e.json'
     SPREADSHEET_ID = '1E_TLxnvSQgz2E7Y-5kFLJZtf8OogxPklmCQ819ip-vA'
     RANGE_NAME = 'Sheet2'
 

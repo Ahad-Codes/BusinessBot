@@ -115,8 +115,6 @@ class Bot:
             order_id = order_id +1 
             values[0][0] = order_id
 
-            # SERVICE_ACCOUNT_FILE = r'C:\Users\Ahad Imran\Desktop\GenAI\Project\onlybusinessdummy-8706fb48751e.json'
-            # SERVICE_ACCOUNT_FILE = r'C:\Users\Talha Abrar\Desktop\LUMS\SENIOR\Spring 2024\GEN AI\Project\OnlyBusiness\SpreadsheetAPI\onlybusinessdummy-8706fb48751e.json'
             SERVICE_ACCOUNT_FILE = r'SpreadsheetAPI\onlybusinessdummy-8706fb48751e.json'
             SPREADSHEET_ID = '1E_TLxnvSQgz2E7Y-5kFLJZtf8OogxPklmCQ819ip-vA'
             RANGE_NAME = 'Sheet1'
@@ -141,7 +139,6 @@ class Bot:
         except Exception as e:
 
             print('Failed to add order!')
-
 
     def call_required_function(self, tools_called, order_id):
 
