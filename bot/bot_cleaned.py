@@ -55,6 +55,7 @@ class Bot:
         self.assistant = self.client.beta.assistants.retrieve(
             assistant_id=self.assistant_id)
         self.history = []
+        self.order_placed = False
 
     def insert_thread_id(self, whatsapp_num, thread_id):
         print(whatsapp_num, thread_id)
@@ -87,6 +88,9 @@ class Bot:
         order = orders_data.loc[(orders_data['Order ID'] == order_id)]
 
         number = '+' + list(order['Customer ID'])[0]
+
+        if number != self.number:
+            return 'Tell the user they are not authorized to view this order!'
 
         if len(order) == 0:
             return 'Order not found!'
@@ -152,7 +156,8 @@ class Bot:
             )
             response = request.execute()
 
-            return 'Successfully added order!', order_id
+            self.order_placed = True
+            return f'Give the user a confirmation that their order has been placed', order_id
 
         except Exception as e:
 
@@ -192,6 +197,7 @@ class Bot:
 
     def send_message(self, message_content, order_id):
 
+
         message = self.client.beta.threads.messages.create(
             thread_id=self.thread.id,
             role="user",
@@ -220,5 +226,12 @@ class Bot:
             thread_id=self.thread.id)
 
         response = messages.to_dict()["data"][0]["content"][0]['text']['value']
+
+
+        print("--------------------------------------boolean-----------------------",self.order_placed)
+        if self.order_placed is True:
+            self.order_placed = False
+            response = response + f"\n\nYour Order ID is: {returned_id}. You can use your Order ID for tracking your order."
+        
         self.history.append((message_content, response))
         return response, returned_id
