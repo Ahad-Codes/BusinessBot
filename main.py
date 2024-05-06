@@ -77,6 +77,8 @@ def fetch_order_id():
     data_rows = sheet_values[1:]
 
     df = pd.DataFrame(data_rows, columns=column_names)
+
+    df.dropna(subset=['Order ID'], inplace=True)
     last_order_id = df.iloc[-1]['Order ID']
     if last_order_id:
         return last_order_id
