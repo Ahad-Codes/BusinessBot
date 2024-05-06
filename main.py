@@ -123,6 +123,9 @@ def transcript_audio(media_url: str) -> dict:
 
         print("here after transcription")
         print(transcription)
+
+        audio_file.close()
+        os.remove(ogg_file_path)
         
         return transcription
 
