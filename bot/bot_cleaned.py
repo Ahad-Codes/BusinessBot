@@ -73,6 +73,8 @@ class Bot:
         )
         response = request.execute()
 
+
+
     def print_history(self):
         for msg, rsp in self.history:
             print(f"User: {msg}\nBot: {rsp}\n")
@@ -81,6 +83,7 @@ class Bot:
         order = []
         orders_data = self.get_spreadsheet_data()
 
+        # & (orders_data['Customer ID'] == self.number)
         order = orders_data.loc[(orders_data['Order ID'] == order_id)]
 
         number = '+' + list(order['Customer ID'])[0]

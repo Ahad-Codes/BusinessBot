@@ -145,7 +145,7 @@ async def reply(request: Request, db: Session = Depends(get_db)):
     whatsapp_number = form_data['From'].split("whatsapp:")[-1]
     thread_id = fetch_thread(whatsapp_number)
 
-    admin_num = "+923034162021"  # Change to fetch later
+    admin_num = "+923008448858"  # Change to fetch later
     if whatsapp_number == admin_num:
         new_bot = Bot(thread_old=thread_id,
                       whatsapp_number=whatsapp_number, user_type="admin")
