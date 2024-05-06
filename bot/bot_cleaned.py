@@ -18,9 +18,6 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SERVICE_ACCOUNT_FILE = os.path.join(BASE_DIR, SERVICE_ACCOUNT_PATH)
 SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
 
-# SERVICE_ACCOUNT_FILE = r'..\SpreadsheetAPI\onlybusinessdummy-8706fb48751e.json'
-# SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
-
 
 def show_json(obj):
     display(json.loads(obj.model_dump_json()))
@@ -57,10 +54,7 @@ class Bot:
 
         self.assistant = self.client.beta.assistants.retrieve(
             assistant_id=self.assistant_id)
-        # contains tuple of (query response) in ascending order (latest response at end of list)
         self.history = []
-
-        print(f'Number : {self.number}')
 
     def insert_thread_id(self, whatsapp_num, thread_id):
         print(whatsapp_num, thread_id)
@@ -79,8 +73,6 @@ class Bot:
         )
         response = request.execute()
 
-        return
-
     def print_history(self):
         for msg, rsp in self.history:
             print(f"User: {msg}\nBot: {rsp}\n")
@@ -89,7 +81,6 @@ class Bot:
         order = []
         orders_data = self.get_spreadsheet_data()
 
-        # & (orders_data['Customer ID'] == self.number)
         order = orders_data.loc[(orders_data['Order ID'] == order_id)]
 
         number = '+' + list(order['Customer ID'])[0]

@@ -53,8 +53,7 @@ logger = logging.getLogger(__name__)
 
 
 app = FastAPI()
-# Set up the OpenAI API client
-# openai.api_key = config("OPENAI_API_KEY")
+
 
 
 def fetch_order_id():
@@ -80,10 +79,8 @@ def fetch_order_id():
     df = pd.DataFrame(data_rows, columns=column_names)
     last_order_id = df.iloc[-1]['Order ID']
     if last_order_id:
-        print("I am in if condition", last_order_id)
         return last_order_id
     else:
-        print("I am in else condition", last_order_id)
         return 0
 
 
@@ -128,12 +125,7 @@ def transcript_audio(media_url: str) -> dict:
         return transcription
 
     except Exception as e:
-        print('Error at transcript_audio...')
-        print(e)
-        # return {
-        #     'status': 0,
-        #     'transcript': transcript['text']
-        # }
+        print('Error at transcript_audio...', e)
 
 
 @app.post("/message")
@@ -149,9 +141,6 @@ async def reply(request: Request, db: Session = Depends(get_db)):
     else:
         Body = form_data['Body']
 
-
-    #---------------------
-
     
     whatsapp_number = form_data['From'].split("whatsapp:")[-1]
     thread_id = fetch_thread(whatsapp_number)
@@ -164,13 +153,6 @@ async def reply(request: Request, db: Session = Depends(get_db)):
         new_bot = Bot(thread_old=thread_id,
                       whatsapp_number=whatsapp_number, user_type="user")
 
-    # new_bot = Bot(thread_old=thread_id,
-    #               whatsapp_number=whatsapp_number, user_type="user")
-    messages = [{"role": "user", "content": Body}]
-    messages.append(
-        {"role": "system", "content": "You're an investor, a serial founder and you've sold many startups. You understand nothing but business."})
-
-    # The generated text
     global order_id
     print("IN MAIN ORDER ID:", order_id)
     order_id = int(order_id)
