@@ -1,4 +1,4 @@
-# OnlyBusiness
+# BusinessBot
 
 ## Motivation
 
